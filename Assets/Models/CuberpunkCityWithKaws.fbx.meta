@@ -7,6 +7,51 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: AlertLights
+    second: {fileID: 2100000, guid: aec7ab54c5f88e649b9af2b8452c0db1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BlueLights
+    second: {fileID: 2100000, guid: ae3f5cc6bb1968a4da426863183af745, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BorderPurpleLights
+    second: {fileID: 2100000, guid: 3cad6e52856c1e94688d0043008ea705, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BuildingsInside
+    second: {fileID: 2100000, guid: 1cbb85f39cda8f948a0865b24adce8a0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BuildingsOutside
+    second: {fileID: 2100000, guid: b8e2192f61d878a479325156be930e75, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BuildingsPurpleDesigns
+    second: {fileID: 2100000, guid: fad8c3fe43f8b2d4ba453ad0bdab42fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Burger
+    second: {fileID: 2100000, guid: 27de3458e7462234eaa392cb29c2dfe0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GreenLights
+    second: {fileID: 2100000, guid: 2fad616c03309de4e9d7339c64f9b6d0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LightsFloorStreet
+    second: {fileID: 2100000, guid: 3be61413d07f2814aa195911e4fc619a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Meshpart11Mtl
     second: {fileID: 2100000, guid: 08b510429843f2b49bdc9b178a855c89, type: 2}
   - first:
@@ -93,7 +138,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Meshpart28Mtl
-    second: {fileID: 2100000, guid: 2ddcf1ff3d8f5ac49b90a6d3b4f10736, type: 2}
+    second: {instanceID: 0}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -154,6 +199,66 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Meshpart9Mtl
     second: {fileID: 2100000, guid: 7f3d6a8403e839d4a943d30def250d97, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: OrangeLights
+    second: {fileID: 2100000, guid: 6cc1f11ef2b1d4d4daea2799359e50fc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Others
+    second: {fileID: 2100000, guid: ea26d96f53a9ed544a60188ba4f27db6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoleLights
+    second: {fileID: 2100000, guid: fcd598b256974844790ecabea17eadc4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pools
+    second: {fileID: 2100000, guid: 1ac94f5f71fc0464cad60207d78cd57d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PurpleLights
+    second: {fileID: 2100000, guid: a19c4452fce61d44aa53d1d7f86e54eb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RedLights
+    second: {fileID: 2100000, guid: 92f860e906b86e84c9afdba6768543c2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Roofs
+    second: {fileID: 2100000, guid: aea6244a44f3cda42aa45e8ce4c31308, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Street
+    second: {fileID: 2100000, guid: c624c55a3e7267441a654aa86150e629, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: StreetLights
+    second: {fileID: 2100000, guid: b8e368fa02ab9a847acf47a4ec377127, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tube
+    second: {fileID: 2100000, guid: 9ae1d90d6c4f1f74fa9934f6559745fc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Windows1
+    second: {fileID: 2100000, guid: 2ddcf1ff3d8f5ac49b90a6d3b4f10736, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Windows2
+    second: {fileID: 2100000, guid: 9afeaaca960a9ab45b6d0c77ee6a7788, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -222,12 +327,12 @@ ModelImporter:
     useFileScale: 1
     strictVertexDataChecks: 0
   tangentSpace:
-    normalSmoothAngle: 60
-    normalImportMode: 0
+    normalSmoothAngle: 50
+    normalImportMode: 1
     tangentImportMode: 3
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
-    blendShapeNormalImportMode: 1
+    blendShapeNormalImportMode: 2
     normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 1
@@ -249,7 +354,7 @@ ModelImporter:
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
