@@ -116,6 +116,18 @@ namespace Autohand {
         [Tooltip("Movement acceleration when grounding is disabled")]
         public float flyingDrag = 4f;
 
+        [AutoToggleHeader("Flying")] public bool Flying;
+        [Tooltip("Use this to change the flying force")]
+        [EnableIf("Flying")]
+        public float flyingForce = 3f;
+        [EnableIf("Flying")]
+        [Tooltip("Set the flying direction")]
+        public Transform flyingDirection;        
+        [EnableIf("Flying")]
+        [Tooltip("Set the flying direction")]
+        [Min(0.0f)]
+        public float MaxflyingSpeed;
+
 
 
         [AutoToggleHeader("Enable Climbing")]
@@ -212,6 +224,7 @@ namespace Autohand {
 
         protected bool trackingStarted = false;
         protected bool isGrounded = false;
+        protected bool isFlying = false;
         protected bool axisReset = true;
         protected bool tempDisableGrounding = false;
         protected bool lastCrouching;
@@ -419,6 +432,9 @@ namespace Autohand {
 
         /// <summary>Sets move direction for this fixedupdate</summary>
         public virtual void Move(Vector2 axis, bool useDeadzone = true, bool useRelativeDirection = false) {
+            // Permitir movimiento si está en el suelo O si está en modo vuelo
+            if (!isGrounded) return; 
+
             moveDirection.x = (!useDeadzone || Mathf.Abs(axis.x) > movementDeadzone) ? axis.x : 0;
             moveDirection.z = (!useDeadzone || Mathf.Abs(axis.y) > movementDeadzone) ? axis.y : 0;
             if(useRelativeDirection)
@@ -452,6 +468,7 @@ namespace Autohand {
 
 
         protected virtual void UpdateRigidbody() {
+            
             var move = AlterDirection(moveDirection);
             var yVel = body.linearVelocity.y;
 
@@ -822,7 +839,8 @@ namespace Autohand {
         protected virtual void Ground() {
             isGrounded = false;
             lastGroundHit = new RaycastHit();
-
+            
+            
             if(!tempDisableGrounding && useGrounding && !IsClimbing() && !(pushAxis.y > 0)) {
                 highestPoint = -1;
 
@@ -964,11 +982,15 @@ namespace Autohand {
         }
 
 
-        public void Jump(float jumpPower = 1) {
-            if(isGrounded) {
-                DisableGrounding(0.1f);
-                body.useGravity = true;
-                body.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+        public void Jump(bool canFly) {
+
+            if (canFly)
+            {
+                moveDirection.x = 0f;
+                moveDirection.z = 0f;
+                DisableGrounding(0.3f);
+                body.AddForce(flyingDirection.forward * flyingForce, ForceMode.VelocityChange);  
+                body.linearVelocity = Vector3.ClampMagnitude(body.linearVelocity, MaxflyingSpeed);
             }
         }
 

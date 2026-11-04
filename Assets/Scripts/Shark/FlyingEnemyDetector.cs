@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Splines;
 using Unity.Mathematics;
 
@@ -6,6 +7,8 @@ using Unity.Mathematics;
 [RequireComponent(typeof(Collider))]
 public class FlyingEnemyDetector : MonoBehaviour
 {
+    private enum NavigationMode { SplineFlight, NavMeshPath }
+
     [Header("Ruta Predeterminada (Spline)")]
     [SerializeField] private SplineContainer splineContainer;
     [Tooltip("Velocidad de iteración de la guía sobre el spline (m/s)")]
@@ -17,21 +20,16 @@ public class FlyingEnemyDetector : MonoBehaviour
     [SerializeField] private float detectionRadius = 8.0f;
     [SerializeField] private LayerMask targetLayer;
 
-    [Header("Persecución")]
+    [Header("Persecución & NavMesh")]
     [SerializeField] private float chaseSpeed = 6.5f;
     [SerializeField] private float stoppingDistance = 2.0f;
     [SerializeField] private float rotationSpeed = 6.0f;
+    [SerializeField] private float flightAltitude = 3.0f;          // Altura sobre el NavMesh
+    [SerializeField] private float cornerTolerance = 0.5f;         // Distancia para pasar al siguiente nodo
 
-    [Header("Evasión Inteligente de Obstáculos")]
-    [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private float obstacleAvoidDistance = 3.5f; // Qué tan adelante mira para esquivar
-    [SerializeField] private float avoidanceForce = 2.0f;        // Intensidad con la que esquiva
-    [SerializeField] private float sensorSideOffset = 0.6f;      // Separación de los sensores laterales
-
-    
     [Header("Animaciones")]
     [SerializeField] private Animator animator;
-    
+
     [Header("Shader / Render")]
     [SerializeField] private Renderer targetRenderer;
     [SerializeField] private string shaderBoolProperty = "_IsChasing";
@@ -41,9 +39,15 @@ public class FlyingEnemyDetector : MonoBehaviour
     private int _shaderPropID;
     private bool _isChasing = false;
 
+    // Spline variables
     private float _splineProgress = 0f;
     private float _splineLength = 1f;
     private float _hoverTimer = 0f;
+
+    // NavMesh variables
+    private NavMeshPath _navMeshPath;
+    private int _currentPathIndex = 0;
+    private NavigationMode _currentMode = NavigationMode.SplineFlight;
 
     private readonly Collider[] _hitColliders = new Collider[4];
 
@@ -53,9 +57,11 @@ public class FlyingEnemyDetector : MonoBehaviour
         _rb.isKinematic = true;
         _rb.useGravity = false;
         _rb.interpolation = RigidbodyInterpolation.Interpolate;
-        
-        animator = GetComponent<Animator>();
 
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        _navMeshPath = new NavMeshPath();
         _propBlock = new MaterialPropertyBlock();
         _shaderPropID = Shader.PropertyToID(shaderBoolProperty);
 
@@ -72,11 +78,15 @@ public class FlyingEnemyDetector : MonoBehaviour
 
         if (hits > 0)
         {
+            // Alternar a modo NavMesh para rodear obstáculos
+            _currentMode = NavigationMode.NavMeshPath;
             SetChasingState(true);
-            ChaseTarget(_hitColliders[0].transform);
+            ChaseViaNavMesh(_hitColliders[0].transform);
         }
         else
         {
+            // Alternar de vuelta a la ruta predeterminada por Spline
+            _currentMode = NavigationMode.SplineFlight;
             SetChasingState(false);
             FollowSplineTarget();
         }
@@ -85,7 +95,8 @@ public class FlyingEnemyDetector : MonoBehaviour
     private void FollowSplineTarget()
     {
         if (splineContainer == null) return;
-        
+
+        // Avanzar la guía por la curva
         _splineProgress += (splineIterationSpeed / _splineLength) * Time.deltaTime;
         if (_splineProgress > 1f) _splineProgress -= 1f;
 
@@ -97,13 +108,10 @@ public class FlyingEnemyDetector : MonoBehaviour
         float distanceToGuide = Vector3.Distance(transform.position, destination);
         float currentFlightSpeed = splineIterationSpeed + (distanceToGuide * 1.5f);
 
-        Vector3 desiredDirection = (destination - transform.position).normalized;
-        if (desiredDirection == Vector3.zero) desiredDirection = (Vector3)tangent;
+        Vector3 moveDirection = (destination - transform.position).normalized;
+        if (moveDirection == Vector3.zero) moveDirection = (Vector3)tangent;
 
-        // Modificar dirección para no estrellarse
-        Vector3 moveDirection = CalculateAvoidance(desiredDirection);
-
-        Vector3 nextPosition = transform.position + moveDirection * (currentFlightSpeed * Time.deltaTime);
+        Vector3 nextPosition = Vector3.MoveTowards(transform.position, destination, currentFlightSpeed * Time.deltaTime);
         _rb.MovePosition(nextPosition);
 
         if (moveDirection.sqrMagnitude > 0.001f)
@@ -113,81 +121,77 @@ public class FlyingEnemyDetector : MonoBehaviour
         }
     }
 
-    private void ChaseTarget(Transform target)
+    private void ChaseViaNavMesh(Transform target)
     {
         Vector3 targetPos = target.position;
-        float distance = Vector3.Distance(transform.position, targetPos);
+        float directDistance = Vector3.Distance(transform.position, targetPos);
 
-        Vector3 desiredDirection = (targetPos - transform.position).normalized;
+        if (directDistance <= stoppingDistance) return;
 
-        // Modificar dirección para esquivar columnas/paredes camino al jugador
-        Vector3 moveDirection = CalculateAvoidance(desiredDirection);
+        // 1. Proyectar posición actual y destino al suelo horneado con NavMesh
+        Vector3 groundOrigin = transform.position;
+        Vector3 groundTarget = targetPos;
 
-        if (moveDirection != Vector3.zero)
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit startHit, 10f, NavMesh.AllAreas))
+            groundOrigin = startHit.position;
+
+        if (NavMesh.SamplePosition(targetPos, out NavMeshHit endHit, 10f, NavMesh.AllAreas))
+            groundTarget = endHit.position;
+
+        // 2. Calcular ruta libre de muros
+        if (NavMesh.CalculatePath(groundOrigin, groundTarget, NavMesh.AllAreas, _navMeshPath))
         {
-            Quaternion targetRot = Quaternion.LookRotation(moveDirection);
-            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
+            if (_navMeshPath.corners != null && _navMeshPath.corners.Length > 1)
+            {
+                // El corner[0] es la posición actual en el NavMesh; corner[1] es el siguiente punto de paso
+                Vector3 nextWaypoint = _navMeshPath.corners[1];
+
+                // Elevar el waypoint a la altura deseada de vuelo o a la altura relativa del jugador
+                float desiredY = Mathf.Max(nextWaypoint.y + flightAltitude, targetPos.y);
+                Vector3 aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
+
+                // Si ya estamos muy cerca del nodo de giro, mirar al siguiente si existe
+                if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), 
+                                     new Vector3(nextWaypoint.x, 0, nextWaypoint.z)) < cornerTolerance)
+                {
+                    if (_navMeshPath.corners.Length > 2)
+                    {
+                        nextWaypoint = _navMeshPath.corners[2];
+                        aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
+                    }
+                }
+
+                // 3. Desplazamiento y rotación a través de Rigidbody
+                Vector3 moveDirection = (aerialDestination - transform.position).normalized;
+                if (moveDirection != Vector3.zero)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(moveDirection);
+                    _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
+                }
+
+                Vector3 nextPosition = Vector3.MoveTowards(transform.position, aerialDestination, chaseSpeed * Time.deltaTime);
+                _rb.MovePosition(nextPosition);
+                return;
+            }
         }
 
-        if (distance > stoppingDistance)
+        // Respaldo en línea recta si no hay NavMesh disponible bajo el objetivo
+        Vector3 directDir = (targetPos - transform.position).normalized;
+        if (directDir != Vector3.zero)
         {
-            Vector3 nextPosition = transform.position + moveDirection * (chaseSpeed * Time.deltaTime);
-            _rb.MovePosition(nextPosition);
+            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(directDir), rotationSpeed * Time.deltaTime));
+            _rb.MovePosition(Vector3.MoveTowards(transform.position, targetPos, chaseSpeed * Time.deltaTime));
         }
-    }
-
-    /// <summary>
-    /// Lanza sensores frontales y laterales para redirigir el vuelo suavemente si hay obstáculos.
-    /// </summary>
-    private Vector3 CalculateAvoidance(Vector3 originalDirection)
-    {
-        Vector3 avoidance = Vector3.zero;
-
-        // Raycast Central
-        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hitCenter, obstacleAvoidDistance, obstacleLayer))
-        {
-            avoidance += hitCenter.normal * avoidanceForce;
-        }
-
-        // Sensor Derecho
-        Vector3 rightOrigin = transform.position + transform.right * sensorSideOffset;
-        if (Physics.Raycast(rightOrigin, transform.forward, out RaycastHit hitRight, obstacleAvoidDistance, obstacleLayer))
-        {
-            avoidance += -transform.right * avoidanceForce;
-        }
-
-        // Sensor Izquierdo
-        Vector3 leftOrigin = transform.position - transform.right * sensorSideOffset;
-        if (Physics.Raycast(leftOrigin, transform.forward, out RaycastHit hitLeft, obstacleAvoidDistance, obstacleLayer))
-        {
-            avoidance += transform.right * avoidanceForce;
-        }
-
-        // Sensor Superior (para evitar techos)
-        Vector3 upOrigin = transform.position + transform.up * sensorSideOffset;
-        if (Physics.Raycast(upOrigin, transform.forward, out RaycastHit hitUp, obstacleAvoidDistance, obstacleLayer))
-        {
-            avoidance += -transform.up * avoidanceForce;
-        }
-
-        // Sensor Inferior (para evitar suelo o salientes)
-        Vector3 downOrigin = transform.position - transform.up * sensorSideOffset;
-        if (Physics.Raycast(downOrigin, transform.forward, out RaycastHit hitDown, obstacleAvoidDistance, obstacleLayer))
-        {
-            avoidance += transform.up * avoidanceForce;
-        }
-
-        // Mezclar la dirección deseada con la fuerza de evasión
-        return (originalDirection + avoidance).normalized;
     }
 
     private void SetChasingState(bool chasing)
     {
         if (_isChasing == chasing) return;
         _isChasing = chasing;
-        
-        animator.SetBool("Is_Chasing", chasing);
-        
+
+        if (animator != null)
+            animator.SetBool("Is_Chasing", chasing);
+
         if (targetRenderer != null)
         {
             targetRenderer.GetPropertyBlock(_propBlock);
@@ -209,12 +213,17 @@ public class FlyingEnemyDetector : MonoBehaviour
         Gizmos.color = _isChasing ? Color.red : new Color(0f, 1f, 1f, 0.4f);
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Visualizar los 5 rayos de evasión en la vista Scene
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(transform.position, transform.forward * obstacleAvoidDistance);
-        Gizmos.DrawRay(transform.position + transform.right * sensorSideOffset, transform.forward * obstacleAvoidDistance);
-        Gizmos.DrawRay(transform.position - transform.right * sensorSideOffset, transform.forward * obstacleAvoidDistance);
-        Gizmos.DrawRay(transform.position + transform.up * sensorSideOffset, transform.forward * obstacleAvoidDistance);
-        Gizmos.DrawRay(transform.position - transform.up * sensorSideOffset, transform.forward * obstacleAvoidDistance);
+        // Visualizar la ruta calculada por el NavMesh en la vista de escena
+        if (_navMeshPath != null && _navMeshPath.corners != null && _navMeshPath.corners.Length > 1)
+        {
+            Gizmos.color = Color.magenta;
+            for (int i = 0; i < _navMeshPath.corners.Length - 1; i++)
+            {
+                Vector3 p1 = _navMeshPath.corners[i] + Vector3.up * flightAltitude;
+                Vector3 p2 = _navMeshPath.corners[i + 1] + Vector3.up * flightAltitude;
+                Gizmos.DrawLine(p1, p2);
+                Gizmos.DrawSphere(p1, 0.2f);
+            }
+        }
     }
 }
