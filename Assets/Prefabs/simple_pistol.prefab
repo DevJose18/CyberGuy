@@ -184,6 +184,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -205,9 +208,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2155197575973958694
 GameObject:
@@ -269,6 +274,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -290,9 +298,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2384274447139589706
 GameObject:
@@ -354,6 +364,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -375,9 +388,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2572763471299690305
 GameObject:
@@ -448,6 +463,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -469,9 +487,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &4568407161290697563
 BoxCollider:
@@ -554,6 +574,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -575,9 +598,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &3722040142409477729
 GameObject:
@@ -596,6 +621,7 @@ GameObject:
   - component: {fileID: 7437147876841395352}
   - component: {fileID: 6688958821030329708}
   - component: {fileID: 4025337965523839143}
+  - component: {fileID: 6011602634277008312}
   m_Layer: 0
   m_Name: simple_pistol
   m_TagString: Untagged
@@ -613,7 +639,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.075, y: 0.075, z: 0.075}
+  m_LocalScale: {x: 0.075, y: 0.07500001, z: 0.075}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5439187510978164634}
@@ -639,10 +665,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3722040142409477729}
-  serializedVersion: 4
-  m_Mass: 0.5
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -677,9 +703,10 @@ MonoBehaviour:
   isGrabbable: 1
   CopySettings: {fileID: 0}
   grabType: 0
+  grabPoseType: 0
   handType: 0
   singleHandOnly: 1
-  instantGrab: 1
+  instantGrab: 0
   useGentleGrab: 0
   maintainGrabOffset: 0
   parentOnGrab: 1
@@ -694,9 +721,10 @@ MonoBehaviour:
   ignoreReleaseTime: 0.25
   minHeldDrag: 1.5
   minHeldAngleDrag: 3
+  minHeldMass: 0.1
   maxHeldVelocity: 10
   heldPositionOffset: {x: 0, y: 0, z: 0}
-  heldRotationOffset: {x: 30, y: 3, z: 0}
+  heldRotationOffset: {x: 0, y: 0, z: 0}
   customGrabJoint: {fileID: 0}
   jointedBodies: []
   heldIgnoreColliders: []
@@ -711,9 +739,9 @@ MonoBehaviour:
   onSqueeze:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 9047720025326364693}
-        m_TargetAssemblyTypeName: Autohand.Grabbable, Assembly-CSharp
-        m_MethodName: HandRelease
+      - m_Target: {fileID: 7437147876841395352}
+        m_TargetAssemblyTypeName: Autohand.Demo.Pistol, Assembly-CSharp
+        m_MethodName: Shoot
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -795,69 +823,69 @@ MonoBehaviour:
     - {x: -0.000008029863, y: 0.0000010747461, z: -0.0000007860363, w: 1}
     handOffset: {x: -1.0127099, y: -0.5003461, z: 0.33065534}
     localQuaternionOffset: {x: -0.4625905, y: 0.48569748, z: -0.5257127, w: 0.52319616}
-    globalHandScale: {x: -0.8, y: 0.8, z: 0.8}
+    globalHandScale: {x: -0.8000003, y: 0.8000002, z: 0.8000003}
     fingerPoses:
     - poseRelativeMatrix:
-      - e00: -0.4444285
-        e01: -0.03397555
-        e02: -1.1678345
-        e03: 0.0045705796
-        e10: -0.33228543
-        e11: -1.1941975
-        e12: 0.16119769
-        e13: 0.04100829
-        e20: -1.1200736
-        e21: 0.3677562
-        e22: 0.41555765
-        e23: 0.012535214
+      - e00: -0.4444287
+        e01: -0.033975746
+        e02: -1.1678348
+        e03: 0.0045705903
+        e10: -0.3322855
+        e11: -1.1941978
+        e12: 0.16119745
+        e13: 0.04100836
+        e20: -1.120074
+        e21: 0.36775634
+        e22: 0.41555777
+        e23: 0.012535799
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.7674782
-        e01: 0.0100097535
-        e02: -0.6409988
-        e03: -0.033107005
-        e10: -0.014183137
-        e11: 0.99990237
-        e12: -0.0013677025
-        e13: 0.00000008071958
-        e20: 0.6409175
-        e21: 0.010140861
-        e22: 0.767545
-        e23: 0.00000019743364
+      - e00: 0.7674785
+        e01: 0.010009651
+        e02: -0.640999
+        e03: -0.033106606
+        e10: -0.014183065
+        e11: 0.99990255
+        e12: -0.0013675654
+        e13: -0.000000063654454
+        e20: 0.64091766
+        e21: 0.010141085
+        e22: 0.7675451
+        e23: 0.00000015731133
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.5320053
-        e01: -0.0046464354
-        e02: -0.84673005
-        e03: -0.02994058
-        e10: 0.0063888463
-        e11: 0.9999846
-        e12: -0.0014732413
-        e13: 0.0000000036491352
-        e20: 0.846717
-        e21: -0.0046261316
-        e22: 0.5320244
-        e23: 0.00000013560624
+      - e00: 0.53200525
+        e01: -0.004646392
+        e02: -0.8467304
+        e03: -0.029940536
+        e10: 0.0063890778
+        e11: 0.99998486
+        e12: -0.0014732439
+        e13: 0.00000016133306
+        e20: 0.8467171
+        e21: -0.004625932
+        e22: 0.5320246
+        e23: 0.000000092002146
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 1.0000002
-        e01: 0.000014487738
-        e02: -0.0000061110513
-        e03: -0.018000163
-        e10: -0.000014696151
-        e11: 1.0000005
-        e12: 0.0000068295512
-        e13: -0.002099971
-        e20: 0.0000060907637
-        e21: -0.000006941064
-        e22: 1.0000006
-        e23: 0.002099927
+      - e00: 1.0000004
+        e01: 0.000014663244
+        e02: -0.000006066594
+        e03: -0.01800015
+        e10: -0.000014510658
+        e11: 1.0000006
+        e12: 0.000006867275
+        e13: -0.002099934
+        e20: 0.0000060880534
+        e21: -0.0000069090183
+        e22: 1.000001
+        e23: 0.0021000917
         e30: 0
         e31: 0
         e32: 0
@@ -868,66 +896,66 @@ MonoBehaviour:
       - {x: -0.0009006176, y: 0.4837232, z: -0.0031523574, w: 0.875215}
       - {x: -0.000003424211, y: 0.0000030351418, z: 0.000007230571, w: 1.0000001}
     - poseRelativeMatrix:
-      - e00: -1.1762562
-        e01: 0.07887993
-        e02: -0.4155691
-        e03: 0.002378602
-        e10: -0.07821012
-        e11: -1.2474586
-        e12: -0.015409574
-        e13: 0.009125877
-        e20: -0.4156944
-        e21: 0.011500893
-        e22: 1.1788015
-        e23: 0.017153978
+      - e00: -1.1762565
+        e01: 0.07887973
+        e02: -0.41556916
+        e03: 0.0023786004
+        e10: -0.07821032
+        e11: -1.2474588
+        e12: -0.015409712
+        e13: 0.009126101
+        e20: -0.41569453
+        e21: 0.011500974
+        e22: 1.178802
+        e23: 0.017154275
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.30952173
-        e01: -0.024635902
-        e02: -0.95057505
-        e03: -0.03862443
-        e10: 0.005222958
-        e11: 0.99969685
-        e12: -0.024208266
-        e13: 0.000000040142698
-        e20: 0.9508783
-        e21: 0.0025282048
-        e22: 0.30955616
-        e23: 0.00000014445723
+      - e00: 0.3095217
+        e01: -0.024635741
+        e02: -0.95057535
+        e03: -0.038624417
+        e10: 0.0052230973
+        e11: 0.99969697
+        e12: -0.024208358
+        e13: 0.00000032945186
+        e20: 0.9508786
+        e21: 0.0025283662
+        e22: 0.3095563
+        e23: 0.00000052155497
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.77369326
-        e01: -0.013856396
-        e02: -0.6334118
-        e03: -0.031118892
-        e10: 0.008166121
-        e11: 0.9999013
-        e12: -0.01189889
-        e13: -0.000000004044067
-        e20: 0.63351303
-        e21: 0.0040335455
-        e22: 0.7737237
-        e23: 0.00000018428594
+      - e00: 0.77369356
+        e01: -0.013856192
+        e02: -0.63341194
+        e03: -0.03111859
+        e10: 0.00816632
+        e11: 0.9999014
+        e12: -0.0118990615
+        e13: 0.000000016254782
+        e20: 0.6335133
+        e21: 0.0040334263
+        e22: 0.773724
+        e23: 0.000000037425544
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 1.0000005
-        e01: 0.0000064379315
-        e02: -0.0000042917045
-        e03: -0.017699916
-        e10: -0.000006414281
-        e11: 1.0000011
-        e12: 0.000014374089
-        e13: -0.0016000076
-        e20: 0.000004817525
-        e21: -0.000014456046
-        e22: 1.0000004
-        e23: 0.0013000229
+      - e00: 1.0000008
+        e01: 0.0000065034774
+        e02: -0.00000425955
+        e03: -0.017699914
+        e10: -0.000006313302
+        e11: 1.0000012
+        e12: 0.000014217727
+        e13: -0.0016000561
+        e20: 0.0000048623424
+        e21: -0.000014623717
+        e22: 1.0000006
+        e23: 0.0013000515
         e30: 0
         e31: 0
         e32: 0
@@ -938,66 +966,66 @@ MonoBehaviour:
       - {x: -0.004229676, y: -0.33633438, z: 0.0058464347, w: -0.941715}
       - {x: -0.0000071878653, y: 0.0000021013473, z: 0.0000032177172, w: 1}
     - poseRelativeMatrix:
-      - e00: -1.1347476
-        e01: 0.104704194
-        e02: -0.5136976
-        e03: 0.0075293398
-        e10: 0.06956282
-        e11: -1.1839184
-        e12: -0.39497548
-        e13: -0.01785109
-        e20: -0.5196229
-        e21: -0.38714534
-        e22: 1.0689323
-        e23: 0.007617831
+      - e00: -1.1347479
+        e01: 0.104704
+        e02: -0.51369774
+        e03: 0.0075293304
+        e10: 0.06956266
+        e11: -1.1839185
+        e12: -0.3949756
+        e13: -0.017850788
+        e20: -0.51962316
+        e21: -0.38714543
+        e22: 1.0689327
+        e23: 0.0076180114
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.5643161
-        e01: -0.027424803
-        e02: -0.82510597
-        e03: -0.033451363
-        e10: -0.045255695
-        e11: 0.9969216
-        e12: -0.06408754
-        e13: -0.000000009207073
-        e20: 0.82431877
-        e21: 0.073506564
-        e22: 0.56133646
-        e23: 0.00000041893983
+      - e00: 0.56431615
+        e01: -0.027424641
+        e02: -0.82510626
+        e03: -0.03345153
+        e10: -0.04525554
+        e11: 0.9969217
+        e12: -0.064087674
+        e13: 0.00000007752389
+        e20: 0.82431906
+        e21: 0.07350664
+        e22: 0.56133676
+        e23: 0.00000022014984
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.39479753
-        e01: -0.006696101
-        e02: -0.9187444
-        e03: -0.026750837
-        e10: -0.06212266
+      - e00: 0.39479768
+        e01: -0.0066959523
+        e02: -0.9187446
+        e03: -0.02675097
+        e10: -0.062122684
         e11: 0.99749595
-        e12: -0.03396503
-        e13: -0.00000003816702
-        e20: 0.9166691
-        e21: 0.070484355
-        e22: 0.3933899
-        e23: -0.0000000109173
+        e12: -0.0339652
+        e13: -0.0000000038877292
+        e20: 0.9166694
+        e21: 0.07048438
+        e22: 0.39339
+        e23: -0.0000001103479
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 1.0000006
-        e01: 0.0000026598502
-        e02: 0.000001102697
-        e03: -0.014600265
-        e10: -0.0000025055267
+      - e00: 1.0000011
+        e01: 0.0000026864711
+        e02: 0.000001088154
+        e03: -0.014599537
+        e10: -0.0000025255506
         e11: 1.000001
-        e12: 0.000015016749
-        e13: -0.0015999881
-        e20: -0.00000074158737
-        e21: -0.000015206138
-        e22: 1.0000007
-        e23: 0.00030006585
+        e12: 0.0000148695735
+        e13: -0.0016000178
+        e20: -0.0000007756908
+        e21: -0.000015387786
+        e22: 1.000001
+        e23: 0.00029996526
         e30: 0
         e31: 0
         e32: 0
@@ -1008,66 +1036,66 @@ MonoBehaviour:
       - {x: -0.031290468, y: -0.5498425, z: -0.016604068, w: -0.83451694}
       - {x: -0.000007518725, y: -0.0000005186208, z: 0.000001329723, w: 1.0000001}
     - poseRelativeMatrix:
-      - e00: -0.9914137
-        e01: 0.33017603
-        e02: -0.6859921
-        e03: 0.01567174
-        e10: 0.0593844
-        e11: -1.0893587
-        e12: -0.61014545
-        e13: -0.04460353
-        e20: -0.7589946
-        e21: -0.5165148
-        e22: 0.8483181
-        e23: -0.003317237
+      - e00: -0.99141395
+        e01: 0.33017588
+        e02: -0.6859923
+        e03: 0.015671737
+        e10: 0.05938434
+        e11: -1.0893588
+        e12: -0.6101457
+        e13: -0.044603474
+        e20: -0.75899494
+        e21: -0.51651484
+        e22: 0.8483184
+        e23: -0.0033165503
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.6568701
-        e01: -0.09143905
-        e02: -0.7484423
-        e03: -0.027589126
-        e10: 0.020447116
+      - e00: 0.6568703
+        e01: -0.09143895
+        e02: -0.7484426
+        e03: -0.027588991
+        e10: 0.020447198
         e11: 0.9944193
-        e12: -0.103544936
-        e13: -9.967493e-10
-        e20: 0.7537297
-        e21: 0.05271249
-        e22: 0.65507084
-        e23: 0.00000009068586
+        e12: -0.10354504
+        e13: 0.00000005444695
+        e20: 0.75373
+        e21: 0.052712563
+        e22: 0.655071
+        e23: 0.000000056329814
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.46318296
-        e01: -0.028491626
-        e02: -0.8858069
-        e03: -0.01973998
-        e10: -0.052220434
+      - e00: 0.46318316
+        e01: -0.028491529
+        e02: -0.8858072
+        e03: -0.01973979
+        e10: -0.052220438
         e11: 0.99687636
-        e12: -0.059369486
-        e13: -0.000000044119727
-        e20: 0.88472974
-        e21: 0.073756434
-        e22: 0.4602429
-        e23: 0.0000003588438
+        e12: -0.059369627
+        e13: 0.000000030064253
+        e20: 0.8847302
+        e21: 0.073756374
+        e22: 0.4602431
+        e23: 0.00000049845363
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 1.0000004
-        e01: 0.0000017736746
-        e02: 0.0000022787192
-        e03: -0.01333007
-        e10: -0.0000014243399
+      - e00: 1.0000008
+        e01: 0.0000017923854
+        e02: 0.0000023082293
+        e03: -0.013329908
+        e10: -0.0000014108783
         e11: 1.0000006
-        e12: 0.00001599292
-        e13: -0.0010300317
-        e20: -0.0000020329603
-        e21: -0.000016103073
-        e22: 1.0000006
-        e23: 0.00019004937
+        e12: 0.0000158585
+        e13: -0.0010299992
+        e20: -0.0000020302427
+        e21: -0.000016201497
+        e22: 1.000001
+        e23: 0.00019011152
         e30: 0
         e31: 0
         e32: 0
@@ -1078,66 +1106,66 @@ MonoBehaviour:
       - {x: 0.03895128, y: 0.51803684, z: 0.006942567, w: 0.8544428}
       - {x: -0.000007987727, y: -0.0000011631207, z: 0.00000087465656, w: 1}
     - poseRelativeMatrix:
-      - e00: -1.0410974
-        e01: -0.3563175
-        e02: 0.5930067
-        e03: 0.014748249
-        e10: -0.26890466
+      - e00: -1.0410978
+        e01: -0.35631737
+        e02: 0.5930068
+        e03: 0.014748247
+        e10: -0.2689048
         e11: 1.1956282
-        e12: 0.24631438
-        e13: 0.036549553
-        e20: -0.6374229
-        e21: 0.07757999
-        e22: -1.072463
-        e23: -0.08265579
+        e12: 0.2463146
+        e13: 0.03654986
+        e20: -0.63742316
+        e21: 0.07757991
+        e22: -1.0724635
+        e23: -0.08265598
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.7069198
-        e01: 0.06855126
-        e02: -0.7039659
-        e03: -0.042079743
+      - e00: 0.7069201
+        e01: 0.06855117
+        e02: -0.7039661
+        e03: -0.04207965
         e10: -0.07136605
-        e11: 0.99712986
-        e12: 0.025433388
-        e13: 0.00000004125429
-        e20: 0.70368683
-        e21: 0.032260027
-        e22: 0.7097795
-        e23: 0.000000012731013
+        e11: 0.99713
+        e12: 0.02543352
+        e13: -0.00000009705797
+        e20: 0.7036871
+        e21: 0.032260165
+        e22: 0.7097797
+        e23: -0.000000041846082
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 0.960135
-        e01: 0.011792008
-        e02: -0.27928632
-        e03: -0.031397223
-        e10: -0.011888212
-        e11: 0.99993277
-        e12: 0.0013492438
-        e13: 0.00000004259208
-        e20: 0.279282
-        e21: 0.0020248368
-        e22: 0.96020794
-        e23: -0.00000007941046
+      - e00: 0.9601353
+        e01: 0.011792072
+        e02: -0.27928644
+        e03: -0.031397287
+        e10: -0.011888139
+        e11: 0.9999329
+        e12: 0.0013493802
+        e13: 0.00000008850283
+        e20: 0.2792821
+        e21: 0.0020249565
+        e22: 0.9602083
+        e23: -0.000000147667
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      - e00: 1.0000004
-        e01: -0.0000049398272
-        e02: -0.000009771314
-        e03: -0.014000279
-        e10: 0.000004951667
+      - e00: 1.0000007
+        e01: -0.0000048278607
+        e02: -0.000009772218
+        e03: -0.013999995
+        e10: 0.0000050624903
         e11: 1.000001
-        e12: 0.000012390532
-        e13: 0.0027000143
-        e20: 0.000009990404
-        e21: -0.000012241055
-        e22: 1.0000007
-        e23: 0.00010003723
+        e12: 0.000012522078
+        e13: 0.0027000941
+        e20: 0.000009989913
+        e21: -0.000012128312
+        e22: 1.0000011
+        e23: 0.000100025005
         e30: 0
         e31: 0
         e32: 0
@@ -1196,7 +1224,7 @@ MonoBehaviour:
     - {x: -0.000008029863, y: 0.0000010747461, z: -0.0000007860363, w: 1}
     handOffset: {x: -0.99753237, y: 0.46177953, z: 0.35422176}
     localQuaternionOffset: {x: -0.4993373, y: 0.44665775, z: -0.49094406, w: 0.5568959}
-    globalHandScale: {x: 0.8, y: 0.80000013, z: 0.79999995}
+    globalHandScale: {x: 0.79999995, y: 0.8, z: 0.79999995}
     fingerPoses:
     - poseRelativeMatrix:
       - e00: -0.34630996
@@ -1637,7 +1665,7 @@ MonoBehaviour:
   body: {fileID: 0}
   barrelTip: {fileID: 5439187510978164634}
   hitPower: 1
-  recoilPower: 1
+  recoilPower: 0.2
   range: 50
   layer:
     serializedVersion: 2
@@ -2485,6 +2513,20 @@ MonoBehaviour:
   poses:
   - {fileID: 6688958821030329708}
   - {fileID: 4334405802767124476}
+--- !u!114 &6011602634277008312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3722040142409477729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21360bf2f4ba84149856028de8de2c89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  disableCollisionTracking: 0
+  disableTriggersTracking: 1
 --- !u!1 &3807103819654149962
 GameObject:
   m_ObjectHideFlags: 0
@@ -2545,6 +2587,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2566,9 +2611,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &3812962941695730004
 GameObject:
@@ -2582,6 +2629,7 @@ GameObject:
   - component: {fileID: 8457883675808209184}
   - component: {fileID: 28848504168498687}
   - component: {fileID: 2141170826}
+  - component: {fileID: 4024851804660520647}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -2631,6 +2679,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2652,9 +2703,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &2141170826
 BoxCollider:
@@ -2677,6 +2730,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.06, y: 0.15511653, z: 0.025153935}
   m_Center: {x: -0.01, y: 0.07057347, z: 0.00000046732845}
+--- !u!114 &4024851804660520647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3812962941695730004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c6f05faa8c57b4c83638f7f36c7c8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabParent: {fileID: 9047720025326364693}
 --- !u!1 &4363816653425612775
 GameObject:
   m_ObjectHideFlags: 0
@@ -2738,6 +2804,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2759,9 +2828,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &4568407161566836408
 BoxCollider:
@@ -2876,6 +2947,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2897,9 +2971,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5165714109359313696
 GameObject:
@@ -2961,6 +3037,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2982,9 +3061,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5177188544729019430
 GameObject:
@@ -3046,6 +3127,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3067,9 +3151,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5278627546971173379
 GameObject:
@@ -3131,6 +3217,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3152,9 +3241,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5452351543033483989
 GameObject:
@@ -3216,6 +3307,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3237,9 +3331,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6244935998268243919
 GameObject:
@@ -3301,6 +3397,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3322,9 +3421,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6700220290243812888
 GameObject:
@@ -3386,6 +3487,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3407,9 +3511,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8410592771352456653
 GameObject:
@@ -3471,6 +3577,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3492,9 +3601,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8645220348681375200
 GameObject:
@@ -3556,6 +3667,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3577,9 +3691,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1001 &539341113
 PrefabInstance:

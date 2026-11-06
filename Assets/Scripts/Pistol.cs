@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Autohand.Demo;
 using UnityEngine;
 
-namespace Autohand.Demo{
     public class Pistol : MonoBehaviour
     {
         public Rigidbody body;
 
         public Transform barrelTip;
+        [SerializeField] private float damage = 25f;
         public float hitPower = 1;
         public float recoilPower = 1;
         public float range = 100;
@@ -34,6 +35,14 @@ namespace Autohand.Demo{
                     hitBody.GetComponent<Smash>()?.DoSmash();
                     hitBody.AddForceAtPosition((hit.point - barrelTip.position).normalized*hitPower*10, hit.point, ForceMode.Impulse);
                 }
+                
+                EnemyHealth enemyHealth = hit.collider.GetComponentInParent<EnemyHealth>();
+
+                if (enemyHealth != null)
+                {
+                    // Pasa 'this.gameObject' (que debe tener el tag "Gun")
+                    enemyHealth.TakeHitFromGun(gameObject, damage, hit.point, hit.normal);
+                }
             }
             else
                 Debug.DrawRay(barrelTip.position, barrelTip.forward*range, Color.red, 1);
@@ -41,4 +50,3 @@ namespace Autohand.Demo{
             body.AddForce(barrelTip.transform.up*recoilPower*5, ForceMode.Impulse);
         }
     }
-}

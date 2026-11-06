@@ -24,11 +24,21 @@ public class FlyingEnemyDetector : MonoBehaviour
     [SerializeField] private float chaseSpeed = 6.5f;
     [SerializeField] private float stoppingDistance = 2.0f;
     [SerializeField] private float rotationSpeed = 6.0f;
-    [SerializeField] private float flightAltitude = 3.0f;          // Altura sobre el NavMesh
-    [SerializeField] private float cornerTolerance = 0.5f;         // Distancia para pasar al siguiente nodo
+    [SerializeField] private float flightAltitude = 3.0f;
+    [SerializeField] private float cornerTolerance = 0.5f;
 
-    [Header("Animaciones")]
+    [Header("Sistema de Ataque")]
+    [SerializeField] private float attackDamage = 15.0f;
+    [SerializeField] private float attackCooldown = 1.2f;
+    [SerializeField] private float attackRange = 2.2f;        // Ligeramente superior a stoppingDistance
+    [SerializeField] private float knockbackForce = 4.0f;
+
+    [Header("Comportamiento de Pérdida / Alerta")]
+    [SerializeField] private float chaseLostTimeout = 4.0f;
+
+    [Header("Animaciones y Audio")]
     [SerializeField] private Animator animator;
+    [SerializeField] private EnemyAudio enemyAudio;
 
     [Header("Shader / Render")]
     [SerializeField] private Renderer targetRenderer;
@@ -39,15 +49,17 @@ public class FlyingEnemyDetector : MonoBehaviour
     private int _shaderPropID;
     private bool _isChasing = false;
 
-    // Spline variables
+    // Spline
     private float _splineProgress = 0f;
     private float _splineLength = 1f;
     private float _hoverTimer = 0f;
 
-    // NavMesh variables
+    // NavMesh y Persecución
     private NavMeshPath _navMeshPath;
-    private int _currentPathIndex = 0;
     private NavigationMode _currentMode = NavigationMode.SplineFlight;
+    private Transform _currentTarget;
+    private float _lostTargetTimer = 0f;
+    private float _attackTimer = 0f;
 
     private readonly Collider[] _hitColliders = new Collider[4];
 
@@ -58,15 +70,13 @@ public class FlyingEnemyDetector : MonoBehaviour
         _rb.useGravity = false;
         _rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-        if (animator == null)
-            animator = GetComponent<Animator>();
+        if (animator == null) animator = GetComponent<Animator>();
+        if (enemyAudio == null) enemyAudio = GetComponent<EnemyAudio>();
+        if (targetRenderer == null) targetRenderer = GetComponentInChildren<Renderer>();
 
         _navMeshPath = new NavMeshPath();
         _propBlock = new MaterialPropertyBlock();
         _shaderPropID = Shader.PropertyToID(shaderBoolProperty);
-
-        if (targetRenderer == null)
-            targetRenderer = GetComponentInChildren<Renderer>();
 
         if (splineContainer != null)
             _splineLength = Mathf.Max(0.001f, splineContainer.CalculateLength());
@@ -74,29 +84,139 @@ public class FlyingEnemyDetector : MonoBehaviour
 
     private void Update()
     {
+        // Enfriamiento de ataque
+        if (_attackTimer > 0f)
+            _attackTimer -= Time.deltaTime;
+
+        // Escaneo de área
         int hits = Physics.OverlapSphereNonAlloc(transform.position, detectionRadius, _hitColliders, targetLayer);
 
         if (hits > 0)
         {
-            // Alternar a modo NavMesh para rodear obstáculos
+            _currentTarget = _hitColliders[0].transform;
+            _lostTargetTimer = 0f;
+        }
+        else if (_currentTarget != null)
+        {
+            _lostTargetTimer += Time.deltaTime;
+            if (_lostTargetTimer >= chaseLostTimeout)
+            {
+                _currentTarget = null;
+                _lostTargetTimer = 0f;
+            }
+        }
+
+        // Lógica de estado
+        if (_currentTarget != null)
+        {
             _currentMode = NavigationMode.NavMeshPath;
             SetChasingState(true);
-            ChaseViaNavMesh(_hitColliders[0].transform);
+            ChaseAndAttackTarget(_currentTarget);
         }
         else
         {
-            // Alternar de vuelta a la ruta predeterminada por Spline
             _currentMode = NavigationMode.SplineFlight;
             SetChasingState(false);
             FollowSplineTarget();
         }
     }
 
+    public void AlertAndAggro(Transform attackerTransform)
+    {
+        _currentTarget = attackerTransform;
+        _lostTargetTimer = 0f;
+    }
+
+    private void ChaseAndAttackTarget(Transform target)
+    {
+        Vector3 targetPos = target.position;
+        float directDistance = Vector3.Distance(transform.position, targetPos);
+
+        // Mirar siempre al objetivo mientras lo acecha
+        Vector3 lookDir = (targetPos - transform.position).normalized;
+        if (lookDir != Vector3.zero)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(lookDir);
+            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
+        }
+
+        // ¿Está en rango para asestar un golpe?
+        if (directDistance <= attackRange)
+        {
+            PerformAttack(target);
+            return; // Se detiene y ataca sin empujar ni colisionar de más
+        }
+
+        // Navegación por NavMesh mientras se acerca
+        ChaseViaNavMesh(targetPos);
+    }
+
+    private void PerformAttack(Transform target)
+    {
+        if (_attackTimer > 0f) return;
+
+        _attackTimer = attackCooldown;
+
+        // 1. Animación y Sonido
+        if (animator != null)
+            animator.SetTrigger("Attack");
+
+        if (enemyAudio != null)
+            enemyAudio.OnAttackPerformed();
+
+        // 2. Aplicar daño al PlayerHealth
+        PlayerHealth playerHealth = target.GetComponentInParent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            Vector3 pushDirection = (target.position - transform.position).normalized;
+            playerHealth.TakeDamage(attackDamage, pushDirection, knockbackForce);
+        }
+    }
+
+    private void ChaseViaNavMesh(Vector3 targetPos)
+    {
+        Vector3 groundOrigin = transform.position;
+        Vector3 groundTarget = targetPos;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit startHit, 10f, NavMesh.AllAreas))
+            groundOrigin = startHit.position;
+
+        if (NavMesh.SamplePosition(targetPos, out NavMeshHit endHit, 10f, NavMesh.AllAreas))
+            groundTarget = endHit.position;
+
+        if (NavMesh.CalculatePath(groundOrigin, groundTarget, NavMesh.AllAreas, _navMeshPath))
+        {
+            if (_navMeshPath.corners != null && _navMeshPath.corners.Length > 1)
+            {
+                Vector3 nextWaypoint = _navMeshPath.corners[1];
+                float desiredY = Mathf.Max(nextWaypoint.y + flightAltitude, targetPos.y);
+                Vector3 aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
+
+                if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                                     new Vector3(nextWaypoint.x, 0, nextWaypoint.z)) < cornerTolerance)
+                {
+                    if (_navMeshPath.corners.Length > 2)
+                    {
+                        nextWaypoint = _navMeshPath.corners[2];
+                        aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
+                    }
+                }
+
+                Vector3 nextPosition = Vector3.MoveTowards(transform.position, aerialDestination, chaseSpeed * Time.deltaTime);
+                _rb.MovePosition(nextPosition);
+                return;
+            }
+        }
+
+        // Si falla la proyección en el NavMesh, movimiento directo
+        Vector3 directNext = Vector3.MoveTowards(transform.position, targetPos, chaseSpeed * Time.deltaTime);
+        _rb.MovePosition(directNext);
+    }
+
     private void FollowSplineTarget()
     {
         if (splineContainer == null) return;
 
-        // Avanzar la guía por la curva
         _splineProgress += (splineIterationSpeed / _splineLength) * Time.deltaTime;
         if (_splineProgress > 1f) _splineProgress -= 1f;
 
@@ -121,73 +241,13 @@ public class FlyingEnemyDetector : MonoBehaviour
         }
     }
 
-    private void ChaseViaNavMesh(Transform target)
-    {
-        Vector3 targetPos = target.position;
-        float directDistance = Vector3.Distance(transform.position, targetPos);
-
-        if (directDistance <= stoppingDistance) return;
-
-        // 1. Proyectar posición actual y destino al suelo horneado con NavMesh
-        Vector3 groundOrigin = transform.position;
-        Vector3 groundTarget = targetPos;
-
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit startHit, 10f, NavMesh.AllAreas))
-            groundOrigin = startHit.position;
-
-        if (NavMesh.SamplePosition(targetPos, out NavMeshHit endHit, 10f, NavMesh.AllAreas))
-            groundTarget = endHit.position;
-
-        // 2. Calcular ruta libre de muros
-        if (NavMesh.CalculatePath(groundOrigin, groundTarget, NavMesh.AllAreas, _navMeshPath))
-        {
-            if (_navMeshPath.corners != null && _navMeshPath.corners.Length > 1)
-            {
-                // El corner[0] es la posición actual en el NavMesh; corner[1] es el siguiente punto de paso
-                Vector3 nextWaypoint = _navMeshPath.corners[1];
-
-                // Elevar el waypoint a la altura deseada de vuelo o a la altura relativa del jugador
-                float desiredY = Mathf.Max(nextWaypoint.y + flightAltitude, targetPos.y);
-                Vector3 aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
-
-                // Si ya estamos muy cerca del nodo de giro, mirar al siguiente si existe
-                if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), 
-                                     new Vector3(nextWaypoint.x, 0, nextWaypoint.z)) < cornerTolerance)
-                {
-                    if (_navMeshPath.corners.Length > 2)
-                    {
-                        nextWaypoint = _navMeshPath.corners[2];
-                        aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
-                    }
-                }
-
-                // 3. Desplazamiento y rotación a través de Rigidbody
-                Vector3 moveDirection = (aerialDestination - transform.position).normalized;
-                if (moveDirection != Vector3.zero)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(moveDirection);
-                    _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
-                }
-
-                Vector3 nextPosition = Vector3.MoveTowards(transform.position, aerialDestination, chaseSpeed * Time.deltaTime);
-                _rb.MovePosition(nextPosition);
-                return;
-            }
-        }
-
-        // Respaldo en línea recta si no hay NavMesh disponible bajo el objetivo
-        Vector3 directDir = (targetPos - transform.position).normalized;
-        if (directDir != Vector3.zero)
-        {
-            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(directDir), rotationSpeed * Time.deltaTime));
-            _rb.MovePosition(Vector3.MoveTowards(transform.position, targetPos, chaseSpeed * Time.deltaTime));
-        }
-    }
-
     private void SetChasingState(bool chasing)
     {
         if (_isChasing == chasing) return;
         _isChasing = chasing;
+
+        if (_isChasing && enemyAudio != null)
+            enemyAudio.OnPlayerDetected();
 
         if (animator != null)
             animator.SetBool("Is_Chasing", chasing);
@@ -200,11 +260,12 @@ public class FlyingEnemyDetector : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
+        // Respaldo: si el jugador choca físicamente contra el enemigo, también puede recibir daño
         if (((1 << collision.gameObject.layer) & targetLayer) != 0)
         {
-            Debug.Log($"Impacto con el jugador: {collision.gameObject.name}");
+            PerformAttack(collision.transform);
         }
     }
 
@@ -213,17 +274,8 @@ public class FlyingEnemyDetector : MonoBehaviour
         Gizmos.color = _isChasing ? Color.red : new Color(0f, 1f, 1f, 0.4f);
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Visualizar la ruta calculada por el NavMesh en la vista de escena
-        if (_navMeshPath != null && _navMeshPath.corners != null && _navMeshPath.corners.Length > 1)
-        {
-            Gizmos.color = Color.magenta;
-            for (int i = 0; i < _navMeshPath.corners.Length - 1; i++)
-            {
-                Vector3 p1 = _navMeshPath.corners[i] + Vector3.up * flightAltitude;
-                Vector3 p2 = _navMeshPath.corners[i + 1] + Vector3.up * flightAltitude;
-                Gizmos.DrawLine(p1, p2);
-                Gizmos.DrawSphere(p1, 0.2f);
-            }
-        }
+        // Radio de ataque en color magenta
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

@@ -20,7 +20,7 @@ namespace Autohand.Demo {
             player.Move(moveController.GetAxis2D(moveAxis));
             player.Turn(turnController.GetAxis2D(turnAxis).x);
             player.Jump(canFly);
-            if (canFly)
+            if (canFly && _audioSource != null && !_audioSource.isPlaying)
             {
                 _audioSource.Play();
             }
