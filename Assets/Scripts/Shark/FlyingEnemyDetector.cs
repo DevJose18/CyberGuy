@@ -1,46 +1,35 @@
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.Splines;
-using Unity.Mathematics;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
 public class FlyingEnemyDetector : MonoBehaviour
 {
-    private enum NavigationMode { SplineFlight, NavMeshPath }
-
-    [Header("Ruta Predeterminada (Spline)")]
-    [SerializeField] private SplineContainer splineContainer;
-    [Tooltip("Velocidad de iteración de la guía sobre el spline (m/s)")]
-    [SerializeField] private float splineIterationSpeed = 4.0f;
+    [Header("Patrulla Circular")]
+    [Tooltip("Punto central sobre el que volará en círculos. Si está vacío, usará su punto de spawn.")]
+    [SerializeField] private Transform orbitCenter;
+    [SerializeField] private float orbitRadius = 6.0f;
+    [SerializeField] private float orbitSpeed = 40.0f;         // Grados por segundo
+    [SerializeField] private float initialAngleOffset = 0.0f;  // Para repartir varios enemigos (ej: 0, 120, 240)
+    [SerializeField] private bool clockwise = true;
     [SerializeField] private float hoverFrequency = 2.0f;
-    [SerializeField] private float hoverAmplitude = 0.3f;
+    [SerializeField] private float hoverAmplitude = 0.35f;
 
-    [Header("Detección (OverlapSphere)")]
+    [Header("Detección")]
     [SerializeField] private float detectionRadius = 8.0f;
-    [SerializeField] private LayerMask targetLayer;
+    [SerializeField] private LayerMask targetLayer;            // Capa del jugador (Player / HandPlayer)
 
-    [Header("Persecución & NavMesh")]
-    [SerializeField] private float chaseSpeed = 6.5f;
-    [SerializeField] private float stoppingDistance = 2.0f;
-    [SerializeField] private float rotationSpeed = 6.0f;
-    [SerializeField] private float flightAltitude = 3.0f;
-    [SerializeField] private float cornerTolerance = 0.5f;
-
-    [Header("Sistema de Ataque")]
+    [Header("Persecución y Ataque")]
+    [SerializeField] private float chaseSpeed = 6.0f;
+    [SerializeField] private float attackRange = 2.2f;
     [SerializeField] private float attackDamage = 15.0f;
     [SerializeField] private float attackCooldown = 1.2f;
-    [SerializeField] private float attackRange = 2.2f;        // Ligeramente superior a stoppingDistance
     [SerializeField] private float knockbackForce = 4.0f;
-
-    [Header("Comportamiento de Pérdida / Alerta")]
+    [SerializeField] private float rotationSpeed = 6.0f;
     [SerializeField] private float chaseLostTimeout = 4.0f;
 
-    [Header("Animaciones y Audio")]
+    [Header("Referencias")]
     [SerializeField] private Animator animator;
     [SerializeField] private EnemyAudio enemyAudio;
-
-    [Header("Shader / Render")]
     [SerializeField] private Renderer targetRenderer;
     [SerializeField] private string shaderBoolProperty = "_IsChasing";
 
@@ -49,17 +38,12 @@ public class FlyingEnemyDetector : MonoBehaviour
     private int _shaderPropID;
     private bool _isChasing = false;
 
-    // Spline
-    private float _splineProgress = 0f;
-    private float _splineLength = 1f;
+    private Vector3 _spawnCenter;
+    private float _currentAngle = 0f;
     private float _hoverTimer = 0f;
-
-    // NavMesh y Persecución
-    private NavMeshPath _navMeshPath;
-    private NavigationMode _currentMode = NavigationMode.SplineFlight;
-    private Transform _currentTarget;
-    private float _lostTargetTimer = 0f;
     private float _attackTimer = 0f;
+    private float _lostTargetTimer = 0f;
+    private Transform _currentTarget;
 
     private readonly Collider[] _hitColliders = new Collider[4];
 
@@ -74,21 +58,36 @@ public class FlyingEnemyDetector : MonoBehaviour
         if (enemyAudio == null) enemyAudio = GetComponent<EnemyAudio>();
         if (targetRenderer == null) targetRenderer = GetComponentInChildren<Renderer>();
 
-        _navMeshPath = new NavMeshPath();
         _propBlock = new MaterialPropertyBlock();
         _shaderPropID = Shader.PropertyToID(shaderBoolProperty);
 
-        if (splineContainer != null)
-            _splineLength = Mathf.Max(0.001f, splineContainer.CalculateLength());
+        // Si no se asigna un centro, el centro de rotación es donde se coloca en escena
+        _spawnCenter = transform.position;
+        _currentAngle = initialAngleOffset;
+        _hoverTimer = Random.Range(0f, 10f);
     }
 
     private void Update()
     {
-        // Enfriamiento de ataque
         if (_attackTimer > 0f)
             _attackTimer -= Time.deltaTime;
 
-        // Escaneo de área
+        CheckDetection();
+
+        if (_currentTarget != null)
+        {
+            SetChasingState(true);
+            ChaseAndAttack();
+        }
+        else
+        {
+            SetChasingState(false);
+            CircleFlight();
+        }
+    }
+
+    private void CheckDetection()
+    {
         int hits = Physics.OverlapSphereNonAlloc(transform.position, detectionRadius, _hitColliders, targetLayer);
 
         if (hits > 0)
@@ -105,20 +104,6 @@ public class FlyingEnemyDetector : MonoBehaviour
                 _lostTargetTimer = 0f;
             }
         }
-
-        // Lógica de estado
-        if (_currentTarget != null)
-        {
-            _currentMode = NavigationMode.NavMeshPath;
-            SetChasingState(true);
-            ChaseAndAttackTarget(_currentTarget);
-        }
-        else
-        {
-            _currentMode = NavigationMode.SplineFlight;
-            SetChasingState(false);
-            FollowSplineTarget();
-        }
     }
 
     public void AlertAndAggro(Transform attackerTransform)
@@ -127,117 +112,93 @@ public class FlyingEnemyDetector : MonoBehaviour
         _lostTargetTimer = 0f;
     }
 
-    private void ChaseAndAttackTarget(Transform target)
+    /// <summary>
+    /// Vuelo circular trigonométrico continuo.
+    /// </summary>
+    private void CircleFlight()
     {
-        Vector3 targetPos = target.position;
-        float directDistance = Vector3.Distance(transform.position, targetPos);
+        Vector3 center = orbitCenter != null ? orbitCenter.position : _spawnCenter;
 
-        // Mirar siempre al objetivo mientras lo acecha
-        Vector3 lookDir = (targetPos - transform.position).normalized;
+        // 1. Incrementar el ángulo según el sentido de giro
+        float directionFactor = clockwise ? 1f : -1f;
+        _currentAngle += directionFactor * orbitSpeed * Time.deltaTime;
+        if (_currentAngle >= 360f) _currentAngle -= 360f;
+        if (_currentAngle < 0f) _currentAngle += 360f;
+
+        // 2. Coordenadas circulares en el plano horizontal (X, Z) + fluctuación vertical (Y)
+        float rad = _currentAngle * Mathf.Deg2Rad;
+        _hoverTimer += Time.deltaTime * hoverFrequency;
+        float verticalOffset = Mathf.Sin(_hoverTimer) * hoverAmplitude;
+
+        Vector3 targetOrbitPos = center + new Vector3(
+            Mathf.Cos(rad) * orbitRadius,
+            verticalOffset,
+            Mathf.Sin(rad) * orbitRadius
+        );
+
+        // 3. Mover hacia la posición orbital (permite reincorporarse suavemente si venía persiguiendo al jugador)
+        Vector3 nextPos = Vector3.MoveTowards(transform.position, targetOrbitPos, (orbitSpeed * Mathf.Deg2Rad * orbitRadius + 1f) * Time.deltaTime);
+        _rb.MovePosition(nextPos);
+
+        // 4. Orientar el frente en la dirección tangencial del círculo
+        Vector3 moveDir = (targetOrbitPos - transform.position).normalized;
+        if (moveDir == Vector3.zero)
+        {
+            // Vector tangente exacto a la circunferencia
+            moveDir = new Vector3(-Mathf.Sin(rad) * directionFactor, 0f, Mathf.Cos(rad) * directionFactor).normalized;
+        }
+
+        if (moveDir != Vector3.zero)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(moveDir);
+            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
+        }
+    }
+
+    private void ChaseAndAttack()
+    {
+        Vector3 aimPoint = _currentTarget.position + Vector3.up * 1.2f;
+        float distance = Vector3.Distance(transform.position, aimPoint);
+
+        // Orientarse hacia el jugador
+        Vector3 lookDir = (aimPoint - transform.position).normalized;
         if (lookDir != Vector3.zero)
         {
             Quaternion targetRot = Quaternion.LookRotation(lookDir);
             _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
         }
 
-        // ¿Está en rango para asestar un golpe?
-        if (directDistance <= attackRange)
+        // Rango de ataque
+        if (distance <= attackRange)
         {
-            PerformAttack(target);
-            return; // Se detiene y ataca sin empujar ni colisionar de más
+            PerformAttack();
+            return;
         }
 
-        // Navegación por NavMesh mientras se acerca
-        ChaseViaNavMesh(targetPos);
+        // Persecución directa
+        Vector3 nextPos = Vector3.MoveTowards(transform.position, aimPoint, chaseSpeed * Time.deltaTime);
+        _rb.MovePosition(nextPos);
     }
 
-    private void PerformAttack(Transform target)
+    private void PerformAttack()
     {
         if (_attackTimer > 0f) return;
-
         _attackTimer = attackCooldown;
 
-        // 1. Animación y Sonido
         if (animator != null)
             animator.SetTrigger("Attack");
 
         if (enemyAudio != null)
             enemyAudio.OnAttackPerformed();
 
-        // 2. Aplicar daño al PlayerHealth
-        PlayerHealth playerHealth = target.GetComponentInParent<PlayerHealth>();
-        if (playerHealth != null)
+        PlayerHealth health = _currentTarget.GetComponentInParent<PlayerHealth>();
+        if (health == null)
+            health = _currentTarget.root.GetComponentInChildren<PlayerHealth>();
+
+        if (health != null)
         {
-            Vector3 pushDirection = (target.position - transform.position).normalized;
-            playerHealth.TakeDamage(attackDamage, pushDirection, knockbackForce);
-        }
-    }
-
-    private void ChaseViaNavMesh(Vector3 targetPos)
-    {
-        Vector3 groundOrigin = transform.position;
-        Vector3 groundTarget = targetPos;
-
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit startHit, 10f, NavMesh.AllAreas))
-            groundOrigin = startHit.position;
-
-        if (NavMesh.SamplePosition(targetPos, out NavMeshHit endHit, 10f, NavMesh.AllAreas))
-            groundTarget = endHit.position;
-
-        if (NavMesh.CalculatePath(groundOrigin, groundTarget, NavMesh.AllAreas, _navMeshPath))
-        {
-            if (_navMeshPath.corners != null && _navMeshPath.corners.Length > 1)
-            {
-                Vector3 nextWaypoint = _navMeshPath.corners[1];
-                float desiredY = Mathf.Max(nextWaypoint.y + flightAltitude, targetPos.y);
-                Vector3 aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
-
-                if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                                     new Vector3(nextWaypoint.x, 0, nextWaypoint.z)) < cornerTolerance)
-                {
-                    if (_navMeshPath.corners.Length > 2)
-                    {
-                        nextWaypoint = _navMeshPath.corners[2];
-                        aerialDestination = new Vector3(nextWaypoint.x, desiredY, nextWaypoint.z);
-                    }
-                }
-
-                Vector3 nextPosition = Vector3.MoveTowards(transform.position, aerialDestination, chaseSpeed * Time.deltaTime);
-                _rb.MovePosition(nextPosition);
-                return;
-            }
-        }
-
-        // Si falla la proyección en el NavMesh, movimiento directo
-        Vector3 directNext = Vector3.MoveTowards(transform.position, targetPos, chaseSpeed * Time.deltaTime);
-        _rb.MovePosition(directNext);
-    }
-
-    private void FollowSplineTarget()
-    {
-        if (splineContainer == null) return;
-
-        _splineProgress += (splineIterationSpeed / _splineLength) * Time.deltaTime;
-        if (_splineProgress > 1f) _splineProgress -= 1f;
-
-        splineContainer.Evaluate(_splineProgress, out float3 targetSplinePos, out float3 tangent, out float3 upVector);
-
-        _hoverTimer += Time.deltaTime * hoverFrequency;
-        Vector3 destination = (Vector3)targetSplinePos + Vector3.up * (Mathf.Sin(_hoverTimer) * hoverAmplitude);
-
-        float distanceToGuide = Vector3.Distance(transform.position, destination);
-        float currentFlightSpeed = splineIterationSpeed + (distanceToGuide * 1.5f);
-
-        Vector3 moveDirection = (destination - transform.position).normalized;
-        if (moveDirection == Vector3.zero) moveDirection = (Vector3)tangent;
-
-        Vector3 nextPosition = Vector3.MoveTowards(transform.position, destination, currentFlightSpeed * Time.deltaTime);
-        _rb.MovePosition(nextPosition);
-
-        if (moveDirection.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(moveDirection, (Vector3)upVector);
-            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime));
+            Vector3 pushDirection = (_currentTarget.position - transform.position).normalized;
+            health.TakeDamage(attackDamage, pushDirection, knockbackForce);
         }
     }
 
@@ -260,21 +221,28 @@ public class FlyingEnemyDetector : MonoBehaviour
         }
     }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        // Respaldo: si el jugador choca físicamente contra el enemigo, también puede recibir daño
-        if (((1 << collision.gameObject.layer) & targetLayer) != 0)
-        {
-            PerformAttack(collision.transform);
-        }
-    }
-
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = _isChasing ? Color.red : new Color(0f, 1f, 1f, 0.4f);
+        Vector3 center = orbitCenter != null ? orbitCenter.position : (Application.isPlaying ? _spawnCenter : transform.position);
+
+        // Dibujar el círculo de patrulla
+        Gizmos.color = Color.cyan;
+        int segments = 32;
+        float step = 360f / segments;
+        Vector3 prevPoint = center + new Vector3(Mathf.Cos(0) * orbitRadius, 0f, Mathf.Sin(0) * orbitRadius);
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float rad = i * step * Mathf.Deg2Rad;
+            Vector3 nextPoint = center + new Vector3(Mathf.Cos(rad) * orbitRadius, 0f, Mathf.Sin(rad) * orbitRadius);
+            Gizmos.DrawLine(prevPoint, nextPoint);
+            prevPoint = nextPoint;
+        }
+
+        // Radios de detección y ataque
+        Gizmos.color = _isChasing ? Color.red : new Color(0f, 1f, 1f, 0.3f);
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Radio de ataque en color magenta
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }

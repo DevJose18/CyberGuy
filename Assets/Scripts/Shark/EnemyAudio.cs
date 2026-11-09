@@ -93,26 +93,32 @@ public class EnemyAudio : MonoBehaviour
         StartCoroutine(DeathAudioSequenceRoutine());
     }
 
-    private IEnumerator DeathAudioSequenceRoutine()
-    {
-        yield return new WaitForSeconds(timeUntilDeathFinished);
-
-        if (deadFinishedClip != null)
+        private IEnumerator DeathAudioSequenceRoutine()
         {
-            GameObject tempGO = new GameObject("DeadFinishedAudio_Temp");
-            tempGO.transform.position = transform.position;
+            // Guardamos la última posición válida por si el enemigo se destruye durante la espera
+            Vector3 lastPosition = transform.position;
+            float savedSpatialBlend = sfxSource != null ? sfxSource.spatialBlend : 1f;
+            float savedMinDist = sfxSource != null ? sfxSource.minDistance : 3f;
+            float savedMaxDist = sfxSource != null ? sfxSource.maxDistance : 50f;
 
-            AudioSource tempSource = tempGO.AddComponent<AudioSource>();
-            tempSource.clip = deadFinishedClip;
-            tempSource.volume = sfxVolume;
-            tempSource.spatialBlend = sfxSource.spatialBlend;
-            tempSource.minDistance = sfxSource.minDistance;
-            tempSource.maxDistance = sfxSource.maxDistance;
-            tempSource.pitch = 1.0f; // Finiquita la muerte a tono limpio
-            tempSource.Play();
+            yield return new WaitForSeconds(timeUntilDeathFinished);
 
-            Destroy(tempGO, deadFinishedClip.length + 0.1f);
-        }
+            if (deadFinishedClip != null)
+            {
+                GameObject tempGO = new GameObject("DeadFinishedAudio_Temp");
+                tempGO.transform.position = lastPosition;
+
+                AudioSource tempSource = tempGO.AddComponent<AudioSource>();
+                tempSource.clip = deadFinishedClip;
+                tempSource.volume = sfxVolume;
+                tempSource.spatialBlend = savedSpatialBlend;
+                tempSource.minDistance = savedMinDist;
+                tempSource.maxDistance = savedMaxDist;
+                tempSource.pitch = 1.0f;
+                tempSource.Play();
+
+                Destroy(tempGO, deadFinishedClip.length + 0.1f);
+            }
     }
 
     #endregion

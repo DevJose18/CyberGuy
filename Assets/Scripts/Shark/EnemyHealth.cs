@@ -83,14 +83,19 @@ public class EnemyHealth : MonoBehaviour
 
     private void Die()
     {
+        if (_isDead) return;
         _isDead = true;
 
-        // Notifica el inicio de la muerte: EnemyAudio maneja el sonido de agonía y el posterior de fin
+        // Desactivar inmediatamente la detección y movimiento para que no ejecute Update
+        if (enemyDetector != null) 
+            enemyDetector.enabled = false;
+
+        if (enemyCollider != null) 
+            enemyCollider.enabled = false;
+
+        // Notificar al audio
         if (enemyAudio != null)
             enemyAudio.OnDeathStarted();
-
-        if (enemyDetector != null) enemyDetector.enabled = false;
-        if (enemyCollider != null) enemyCollider.enabled = false;
 
         if (enemyRigidbody != null)
         {
@@ -105,6 +110,7 @@ public class EnemyHealth : MonoBehaviour
         if (deathVfxPrefab != null)
             Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
 
+        // Destruir con retraso
         Destroy(gameObject, destroyDelay);
     }
 

@@ -72,8 +72,7 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         Debug.Log("[GameManager] ¡Game Over! Deteniendo el juego.");
 
-        // 1. Congelar físicas, Update dependientes de delta time y corrutinas escaladas
-        Time.timeScale = 0.0f;
+        UnityEditor.EditorApplication.isPlaying = false;
 
         // 2. Activar interfaz de Game Over
         if (gameOverUI != null)
