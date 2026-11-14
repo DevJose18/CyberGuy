@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,10 +9,14 @@ public class GameManager : MonoBehaviour
 
     [Header("Referencias")]
     [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private GameObject WonUI; // Panel de Game Over (Canvas)
     [SerializeField] private GameObject gameOverUI; // Panel de Game Over (Canvas)
-
+    [SerializeField] private GameObject[] enemies;
+    private int  enemiesCount;
+    
     [Header("Estado")]
     [SerializeField] private bool isGameOver = false;
+    [SerializeField] private bool didPlayerWin = false;
 
     public bool IsGameOver => isGameOver;
 
@@ -24,9 +30,11 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-
+        
         // Asegurar que el tiempo esté corriendo al cargar la escena
         Time.timeScale = 1.0f;
+
+        enemies = GameObject.FindGameObjectsWithTag("Enemy");
     }
 
     private void Start()
@@ -51,7 +59,19 @@ public class GameManager : MonoBehaviour
         {
             gameOverUI.SetActive(false);
         }
+
+        if (WonUI != null)
+        {
+            WonUI.SetActive(false);
+        }
+
     }
+
+    private void OnEnable()
+    {
+        EnemyHealth.OnEnemyDeath += OnEnemyEliminated;
+    }
+    
 
     private void OnDestroy()
     {
@@ -60,6 +80,7 @@ public class GameManager : MonoBehaviour
         {
             playerHealth.OnPlayerDeath.RemoveListener(TriggerGameOver);
         }
+        EnemyHealth.OnEnemyDeath -= OnEnemyEliminated;
     }
 
     /// <summary>
@@ -67,19 +88,34 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void TriggerGameOver()
     {
-        if (isGameOver) return;
+        StartCoroutine(StartGameEnded());
+    }
+    
 
+    IEnumerator StartGameEnded()
+    {
+        if (isGameOver) yield return null;
+        
         isGameOver = true;
         Debug.Log("[GameManager] ¡Game Over! Deteniendo el juego.");
 
-        UnityEditor.EditorApplication.isPlaying = false;
 
         // 2. Activar interfaz de Game Over
-        if (gameOverUI != null)
+        if (WonUI != null && didPlayerWin)
+        {
+            WonUI.SetActive(true);
+        }
+        else if (gameOverUI != null && !didPlayerWin)
         {
             gameOverUI.SetActive(true);
         }
+        
+        yield return new WaitForSeconds(3f);
 
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+        
         // Opcional: Desbloquear el cursor si es primera persona/VR o juego con mouse lock
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -103,5 +139,16 @@ public class GameManager : MonoBehaviour
         if (isGameOver) return;
 
         Time.timeScale = 1.0f;
+    }
+
+    private void OnEnemyEliminated()
+    {
+        Debug.Log("Enemy eliminado");
+        enemiesCount++;
+        if (enemiesCount == enemies.Length)
+        {
+            didPlayerWin = true;
+            TriggerGameOver();
+        }
     }
 }

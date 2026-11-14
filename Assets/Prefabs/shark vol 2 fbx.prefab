@@ -531,6 +531,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 447ed4eceb3c87c4db94cd6d8d980740, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 2181874732124191419, guid: 447ed4eceb3c87c4db94cd6d8d980740, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -745,8 +749,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecfd61d3f55dce14d8002471afbf7670, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySphereDetector
-  splineContainer: {fileID: 0}
-  splineIterationSpeed: 4
+  orbitCenter: {fileID: 0}
+  orbitRadius: 20
+  orbitSpeed: 40
+  initialAngleOffset: 0
+  clockwise: 1
   hoverFrequency: 1.5
   hoverAmplitude: 0.5
   detectionRadius: 50
@@ -754,14 +761,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   chaseSpeed: 20
-  stoppingDistance: 1.2
-  rotationSpeed: 6
-  flightAltitude: 3
-  cornerTolerance: 0.5
+  attackRange: 10
   attackDamage: 15
   attackCooldown: 1.2
-  attackRange: 2.2
   knockbackForce: 4
+  rotationSpeed: 6
   chaseLostTimeout: 4
   animator: {fileID: 2798896063058175900}
   enemyAudio: {fileID: 2975772972082666803}

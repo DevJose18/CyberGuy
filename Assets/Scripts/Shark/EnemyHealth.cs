@@ -1,8 +1,12 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemyHealth : MonoBehaviour
 {
+    public static event Action OnEnemyDeath;
+    
     [Header("Estadísticas de Vida")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
@@ -85,7 +89,7 @@ public class EnemyHealth : MonoBehaviour
     {
         if (_isDead) return;
         _isDead = true;
-
+        OnEnemyDeath?.Invoke();
         // Desactivar inmediatamente la detección y movimiento para que no ejecute Update
         if (enemyDetector != null) 
             enemyDetector.enabled = false;
@@ -109,7 +113,7 @@ public class EnemyHealth : MonoBehaviour
 
         if (deathVfxPrefab != null)
             Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
-
+        
         // Destruir con retraso
         Destroy(gameObject, destroyDelay);
     }
