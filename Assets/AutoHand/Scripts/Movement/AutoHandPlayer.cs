@@ -432,6 +432,11 @@ namespace Autohand {
 
         /// <summary>Sets move direction for this fixedupdate</summary>
         public virtual void Move(Vector2 axis, bool useDeadzone = true, bool useRelativeDirection = false) {
+            if (!useMovement) {
+                moveDirection = Vector2.zero;
+                return;
+            }
+
             // Permitir movimiento si está en el suelo O si está en modo vuelo
             if (!isGrounded) return; 
 
@@ -442,6 +447,11 @@ namespace Autohand {
         }
 
         public virtual void Turn(float turnAxis) {
+            if (!useMovement) {
+                turningAxis = 0f;
+                return;
+            }
+
             turnAxis = (Mathf.Abs(turnAxis) > turnDeadzone) ? turnAxis : 0;
             turningAxis = turnAxis;
         }
@@ -983,6 +993,8 @@ namespace Autohand {
 
 
         public void Jump(bool canFly) {
+            if (!useMovement)
+                return;
 
             if (canFly)
             {

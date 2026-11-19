@@ -180,7 +180,7 @@ namespace Autohand
         {
             if(useSmoothing) {
                 var currentAngleDistance = Vector3.Angle(currentSmoothForward, transform.forward);
-                currentSmoothForward = Vector3.RotateTowards(currentSmoothForward, transform.forward, Time.deltaTime * forwardPointerSmoothing + Time.deltaTime * forwardPointerSmoothing * currentAngleDistance, 1000f);
+                currentSmoothForward = Vector3.RotateTowards(currentSmoothForward, transform.forward, Time.unscaledDeltaTime * forwardPointerSmoothing + Time.unscaledDeltaTime * forwardPointerSmoothing * currentAngleDistance, 1000f);
                 currentSmoothForward.Normalize();
             }
             else
