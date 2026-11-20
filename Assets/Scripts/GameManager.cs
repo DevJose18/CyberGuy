@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Autohand;
 using Autohand.Demo;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -9,6 +10,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public static Action<bool> OnGamePaused;
 
     [Header("Referencias")]
     [SerializeField] private PlayerHealth playerHealth;
@@ -97,7 +99,8 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (allowKeyboardPause && !isGameOver && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (allowKeyboardPause && !isGameOver && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame || 
+            playerControllerLink.moveController.ButtonPressed(CommonButton.menuButton) && !isPaused)
         {
             TogglePause();
         }
@@ -247,7 +250,8 @@ public class GameManager : MonoBehaviour
         }
 
         SetPlayerMovementEnabled(false);
-        Time.timeScale = 0f;
+        //Time.timeScale = 0f;
+        OnGamePaused.Invoke(true);
     }
 
     /// <summary>
@@ -265,7 +269,8 @@ public class GameManager : MonoBehaviour
         }
 
         SetPlayerMovementEnabled(true);
-        Time.timeScale = 1.0f;
+        OnGamePaused.Invoke(false);
+        //Time.timeScale = 1.0f;
     }
 
     private void TeleportPauseCanvasToPlayer()

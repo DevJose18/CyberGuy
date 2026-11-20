@@ -24,6 +24,7 @@ namespace Autohand.Demo {
             {
                 _audioSource.Play();
             }
+            
         }
         void FixedUpdate(){
             player.Move(moveController.GetAxis2D(moveAxis));

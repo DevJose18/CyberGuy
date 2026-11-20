@@ -756,7 +756,7 @@ MonoBehaviour:
   clockwise: 1
   hoverFrequency: 1.5
   hoverAmplitude: 0.5
-  detectionRadius: 50
+  detectionRadius: 30
   targetLayer:
     serializedVersion: 2
     m_Bits: 512

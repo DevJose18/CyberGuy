@@ -1,9 +1,13 @@
+using System;
+using UnityEditor.XR;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
 public class FlyingEnemyDetector : MonoBehaviour
 {
+    
     [Header("Patrulla Circular")]
     [Tooltip("Punto central sobre el que volará en círculos. Si está vacío, usará su punto de spawn.")]
     [SerializeField] private Transform orbitCenter;
@@ -45,6 +49,8 @@ public class FlyingEnemyDetector : MonoBehaviour
     private float _lostTargetTimer = 0f;
     private Transform _currentTarget;
 
+    private bool stopEnemy = false;
+
     private readonly Collider[] _hitColliders = new Collider[4];
 
     private void Awake()
@@ -65,10 +71,14 @@ public class FlyingEnemyDetector : MonoBehaviour
         _spawnCenter = transform.position;
         _currentAngle = initialAngleOffset;
         _hoverTimer = Random.Range(0f, 10f);
+
+        GameManager.OnGamePaused += PauseEnemy;
     }
 
     private void Update()
     {
+        if (stopEnemy) return;
+        
         if (_attackTimer > 0f)
             _attackTimer -= Time.deltaTime;
 
@@ -219,6 +229,18 @@ public class FlyingEnemyDetector : MonoBehaviour
             _propBlock.SetFloat(_shaderPropID, _isChasing ? 1.0f : 0.0f);
             targetRenderer.SetPropertyBlock(_propBlock);
         }
+    }
+
+    void PauseEnemy(bool paused)
+    {
+        stopEnemy = paused;
+        animator.enabled = !paused;
+    }
+
+
+    private void OnDestroy()
+    {
+        GameManager.OnGamePaused -= PauseEnemy;
     }
 
     private void OnDrawGizmosSelected()
