@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -11,7 +12,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float invulnerabilityDuration = 0.5f;
 
     [Header("Eventos")]
-    public UnityEvent<float, float> OnHealthChanged; // (vidaActual, vidaMaxima)
+    public static Action<float> OnHealthChanged; // (vidaActual, vidaMaxima)
     public UnityEvent OnPlayerDeath;
 
     private bool _isDead = false;
@@ -19,6 +20,7 @@ public class PlayerHealth : MonoBehaviour
 
     public bool IsDead => _isDead;
     public float CurrentHealth => currentHealth;
+    
     public float MaxHealth => maxHealth;
 
     private void Awake()
@@ -42,7 +44,7 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Max(0f, currentHealth);
         _invulnerabilityTimer = invulnerabilityDuration;
 
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth);
 
         // Si el jugador tiene Rigidbody, aplicar retroceso físico opcional
         if (knockbackForce > 0f && TryGetComponent(out Rigidbody rb))
@@ -67,6 +69,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (_isDead) return;
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth);
     }
+    
 }
